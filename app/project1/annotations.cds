@@ -1,0 +1,1 @@
+using app.qualityinspection.QualityInspectionService as service from '../../srv/quality-service';
