@@ -1,10 +1,12 @@
 sap.ui.define([
   "sap/ui/core/mvc/Controller"
-], (BaseController) => {
+], function (Controller) {
   "use strict";
 
-  return BaseController.extend("project1.controller.App", {
-      onInit() {
+  return Controller.extend("project1.controller.App", {
+      onInit: function () {
+          // Initialize router
+          this.getOwnerComponent().getRouter().initialize();
       }
   });
 });

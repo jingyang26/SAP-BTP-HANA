@@ -1,7 +1,15 @@
-<mvc:View controllerName="project1.controller.App"
+<mvc:View
+    controllerName="project1.controller.App"
     displayBlock="true"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m">
-    <App id="app">
-    </App>
+    <Shell>
+        <App id="app">
+            <pages>
+                <Page title="Quality Inspection">
+                    <mvc:XMLView viewName="project1.view.dashboard"/>
+                </Page>
+            </pages>
+        </App>
+    </Shell>
 </mvc:View>

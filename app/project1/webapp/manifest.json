@@ -1,114 +1,69 @@
 {
   "_version": "1.65.0",
   "sap.app": {
-    "id": "project1",
-    "type": "application",
-    "i18n": "i18n/i18n.properties",
-    "applicationVersion": {
-      "version": "0.0.1"
-    },
-    "title": "{{appTitle}}",
-    "description": "{{appDescription}}",
-    "resources": "resources.json",
-    "sourceTemplate": {
-      "id": "@sap/generator-fiori:basic",
-      "version": "1.16.1",
-      "toolsId": "0d189eda-f78b-4604-921a-30b8e09b5dbe"
-    },
-    "dataSources": {
-      "mainService": {
-        "uri": "/quality-api/",
-        "type": "OData",
-        "settings": {
-          "annotations": [],
-          "odataVersion": "4.0"
-        }
-      }
-    }
+      "id": "project1",
+      "type": "application",
+      "i18n": "i18n/i18n.properties",
+      "applicationVersion": {
+          "version": "0.0.1"
+      },
+      "title": "Quality Inspection",
+      "description": "Quality Inspection Dashboard"
   },
   "sap.ui": {
-    "technology": "UI5",
-    "icons": {
-      "icon": "",
-      "favIcon": "",
-      "phone": "",
-      "phone@2": "",
-      "tablet": "",
-      "tablet@2": ""
-    },
-    "deviceTypes": {
-      "desktop": true,
-      "tablet": true,
-      "phone": true
-    }
+      "technology": "UI5",
+      "deviceTypes": {
+          "desktop": true,
+          "tablet": true,
+          "phone": true
+      }
   },
   "sap.ui5": {
-    "flexEnabled": true,
-    "dependencies": {
-      "minUI5Version": "1.131.1",
-      "libs": {
-        "sap.m": {},
-        "sap.ui.core": {}
-      }
-    },
-    "contentDensities": {
-      "compact": true,
-      "cozy": true
-    },
-    "models": {
-      "i18n": {
-        "type": "sap.ui.model.resource.ResourceModel",
-        "settings": {
-          "bundleName": "project1.i18n.i18n"
-        }
+      "rootView": {
+          "viewName": "project1.view.App",
+          "type": "XML",
+          "async": true,
+          "id": "App"
       },
-      "": {
-        "dataSource": "mainService",
-        "preload": true,
-        "settings": {
-          "operationMode": "Server",
-          "autoExpandSelect": true,
-          "earlyRequests": true
-        }
-      }
-    },
-    "resources": {
-      "css": [
-        {
-          "uri": "css/style.css"
-        }
-      ]
-    },
-    "routing": {
-      "config": {
-        "routerClass": "sap.m.routing.Router",
-        "controlAggregation": "pages",
-        "controlId": "app",
-        "transition": "slide",
-        "type": "View",
-        "viewType": "XML",
-        "path": "project1.view"
+      "dependencies": {
+          "minUI5Version": "1.71.0",
+          "libs": {
+              "sap.m": {},
+              "sap.ui.core": {},
+              "sap.ui.layout": {},
+              "sap.f": {}
+          }
       },
-      "routes": [
-        {
-          "name": "RouteView1",
-          "pattern": ":?query:",
-          "target": [
-            "TargetView1"
-          ]
-        }
-      ],
-      "targets": {
-        "TargetView1": {
-          "id": "View1",
-          "name": "View1"
-        }
+      "models": {
+          "i18n": {
+              "type": "sap.ui.model.resource.ResourceModel",
+              "settings": {
+                  "bundleName": "project1.i18n.i18n"
+              }
+          }
+      },
+      "routing": {
+          "config": {
+              "routerClass": "sap.m.routing.Router",
+              "viewType": "XML",
+              "viewPath": "project1.view",
+              "controlId": "app",
+              "controlAggregation": "pages",
+              "async": true
+          },
+          "routes": [
+              {
+                  "pattern": "",
+                  "name": "dashboard",
+                  "target": "dashboard"
+              }
+          ],
+          "targets": {
+              "dashboard": {
+                  "viewId": "dashboard",
+                  "viewName": "dashboard"
+              }
+          }
       }
-    },
-    "rootView": {
-      "viewName": "project1.view.App",
-      "type": "XML",
-      "id": "App"
-    }
   }
 }

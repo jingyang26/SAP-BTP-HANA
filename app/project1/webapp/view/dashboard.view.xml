@@ -1,0 +1,151 @@
+<mvc:View
+   controllerName="project1.controller.dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:f="sap.f">
+    
+    <Page showHeader="true" title="Quality Inspection Dashboard">
+        <layout:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiSmallMargin">
+            <!-- KPI Tiles -->
+            <layout:content>
+                <GenericTile 
+                    header="Pending Inspections"
+                    subheader="Today"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    <TileContent>
+                        <NumericContent 
+                            value="{dashboard>/inspections/pending}"
+                            valueColor="Critical"/>
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile 
+                    header="Pass Rate"
+                    subheader="This Week"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    <TileContent>
+                        <NumericContent 
+                            value="{dashboard>/inspections/passRate}"
+                            valueColor="Good"
+                            scale="%"/>
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile 
+                    header="Failed Items"
+                    subheader="Requires Action"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    <TileContent>
+                        <NumericContent 
+                            value="{dashboard>/inspections/failed}"
+                            valueColor="Error"/>
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile 
+                    header="In Progress"
+                    subheader="Active Inspections"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    <TileContent>
+                        <NumericContent 
+                            value="{dashboard>/inspections/inProgress}"
+                            valueColor="Neutral"/>
+                    </TileContent>
+                </GenericTile>
+            </layout:content>
+        </layout:Grid>
+
+        <!-- Inspection List -->
+        <Panel headerText="Current Inspections" class="sapUiSmallMargin">
+            <Toolbar>
+                <SearchField width="15rem" placeholder="Search by Delivery ID or Batch"/>
+                <ToolbarSpacer/>
+                <Button icon="sap-icon://filter" text="Filter" press="onFilterPress"/>
+                <Button icon="sap-icon://add" text="New Inspection" type="Emphasized" press="onNewInspection"/>
+            </Toolbar>
+            <Table
+                items="{dashboard>/inspectionList}"
+                mode="SingleSelectMaster"
+                selectionChange="onInspectionSelect">
+                <columns>
+                    <Column>
+                        <Text text="Delivery ID"/>
+                    </Column>
+                    <Column>
+                        <Text text="Batch Number"/>
+                    </Column>
+                    <Column>
+                        <Text text="Status"/>
+                    </Column>
+                    <Column>
+                        <Text text="Inspector"/>
+                    </Column>
+                    <Column>
+                        <Text text="Date"/>
+                    </Column>
+                    <Column>
+                        <Text text="Actions"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem type="Active">
+                        <cells>
+                            <Text text="{dashboard>deliveryId}"/>
+                            <Text text="{dashboard>batchNumber}"/>
+                            <ObjectStatus
+                                text="{dashboard>status}"
+                                state="{= ${dashboard>status} === 'Pass' ? 'Success' : ${dashboard>status} === 'Fail' ? 'Error' : 'Warning' }"/>
+                            <Text text="{dashboard>inspector}"/>
+                            <Text text="{dashboard>date}"/>
+                            <HBox>
+                                <Button icon="sap-icon://inspect" tooltip="View Details" press="onViewDetails"/>
+                                <Button icon="sap-icon://edit" tooltip="Edit" press="onEdit"/>
+                                <Button icon="sap-icon://document" tooltip="Generate Report" press="onGenerateReport"/>
+                            </HBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </Panel>
+
+        <!-- Failed Items Panel -->
+        <Panel headerText="Failed Items - Action Required" class="sapUiSmallMargin">
+            <Table
+                items="{dashboard>/failedItems}"
+                mode="SingleSelectMaster">
+                <columns>
+                    <Column>
+                        <Text text="Item ID"/>
+                    </Column>
+                    <Column>
+                        <Text text="Failure Reason"/>
+                    </Column>
+                    <Column>
+                        <Text text="Required Action"/>
+                    </Column>
+                    <Column>
+                        <Text text="Priority"/>
+                    </Column>
+                    <Column>
+                        <Text text="Status"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{dashboard>itemId}"/>
+                            <Text text="{dashboard>failureReason}"/>
+                            <Text text="{dashboard>action}"/>
+                            <ObjectStatus
+                                text="{dashboard>priority}"
+                                state="{= ${dashboard>priority} === 'High' ? 'Error' : ${dashboard>priority} === 'Medium' ? 'Warning' : 'Success' }"/>
+                            <Text text="{dashboard>status}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </Panel>
+    </Page>
+</mvc:View>

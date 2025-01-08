@@ -1,7 +1,7 @@
 ## Application Details
 |               |
 | ------------- |
-|**Generation Date and Time**<br>Tue Jan 07 2025 10:01:27 GMT+0000 (Coordinated Universal Time)|
+|**Generation Date and Time**<br>Wed Jan 08 2025 17:38:52 GMT+0000 (Coordinated Universal Time)|
 |**App Generator**<br>@sap/generator-fiori-freestyle|
 |**App Generator Version**<br>1.16.1|
 |**Generation Platform**<br>SAP Business Application Studio|
@@ -9,7 +9,7 @@
 |**Service Type**<br>Local Cap|
 |**Service URL**<br>http://localhost:4004/quality-api/|
 |**Module Name**<br>project1|
-|**Application Title**<br>AKAMAJU|
+|**Application Title**<br>AKMAJU|
 |**Namespace**<br>|
 |**UI5 Theme**<br>sap_horizon|
 |**UI5 Version**<br>1.131.1|
