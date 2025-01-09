@@ -1,3 +1,4 @@
+// dashboard.controller.js
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/json/JSONModel",
@@ -19,12 +20,6 @@ sap.ui.define([
         onInit: function() {
             // Initialize view model with mock data
             const oInitialData = {
-                "stats": {
-                    "pending": 8,
-                    "passRate": 92.5,
-                    "failed": 3,
-                    "inProgress": 9
-                },
                 "inspections": [
                     {
                         "deliveryId": "DEL-2024-001",
@@ -32,7 +27,7 @@ sap.ui.define([
                         "material": "Premium A4 Paper 80gsm",
                         "status": "Pending",
                         "inspector": "Ahmad Razak",
-                        "date": "2024-01-09",
+                        "date": "2024/1/9",
                         "type": "Inbound",
                         "supplier": "PaperTech Solutions",
                         "quantity": 50000,
@@ -44,7 +39,7 @@ sap.ui.define([
                         "material": "HP DesignJet Ink Cartridge",
                         "status": "In Progress",
                         "inspector": "Sarah Lim",
-                        "date": "2024-01-09",
+                        "date": "2024/1/9",
                         "type": "Inbound",
                         "supplier": "HP Malaysia",
                         "quantity": 100,
@@ -56,7 +51,7 @@ sap.ui.define([
                         "material": "Photo Paper Glossy A3",
                         "status": "Pass",
                         "inspector": "Raj Kumar",
-                        "date": "2024-01-08",
+                        "date": "2024/1/8",
                         "type": "Inbound",
                         "supplier": "Kodak Materials",
                         "quantity": 2500,
@@ -68,7 +63,7 @@ sap.ui.define([
                         "material": "Canon Black Toner",
                         "status": "Fail",
                         "inspector": "Lee Wei Ling",
-                        "date": "2024-01-08",
+                        "date": "2024/1/8",
                         "type": "Inbound",
                         "supplier": "Canon Asia",
                         "quantity": 50,
@@ -80,7 +75,7 @@ sap.ui.define([
                         "material": "Spiral Binding Coils",
                         "status": "Pass",
                         "inspector": "Nurul Huda",
-                        "date": "2024-01-08",
+                        "date": "2024/1/8",
                         "type": "Inbound",
                         "supplier": "BindPro Solutions",
                         "quantity": 1000,
@@ -92,7 +87,7 @@ sap.ui.define([
                         "material": "B5 Paper 70gsm",
                         "status": "In Progress",
                         "inspector": "Tan Mei Ling",
-                        "date": "2024-01-09",
+                        "date": "2024/1/9",
                         "type": "Inbound",
                         "supplier": "PaperTech Solutions",
                         "quantity": 30000,
@@ -104,7 +99,7 @@ sap.ui.define([
                         "material": "Lamination Sheets A4",
                         "status": "Pending",
                         "inspector": "Mohammad Hafiz",
-                        "date": "2024-01-09",
+                        "date": "2024/1/9",
                         "type": "Inbound",
                         "supplier": "LamTech Asia",
                         "quantity": 5000,
@@ -305,6 +300,31 @@ sap.ui.define([
 
             const oViewModel = new JSONModel(oInitialData);
             this.getView().setModel(oViewModel, "dashboard");
+            
+            // Calculate initial statistics
+            this.calculateStatistics();
+        },
+
+        calculateStatistics: function() {
+            const oModel = this.getView().getModel("dashboard");
+            const aInspections = oModel.getProperty("/inspections") || [];
+            
+            // Calculate counts for each status
+            const oStats = {
+                pending: aInspections.filter(item => item.status === "Pending").length,
+                inProgress: aInspections.filter(item => item.status === "In Progress").length,
+                failed: aInspections.filter(item => item.status === "Fail").length,
+                passed: aInspections.filter(item => item.status === "Pass").length
+            };
+            
+            // Calculate pass rate
+            const completedInspections = oStats.failed + oStats.passed;
+            oStats.passRate = completedInspections > 0 
+                ? Math.round((oStats.passed / completedInspections) * 100)
+                : 0;
+
+            // Update model with new statistics
+            oModel.setProperty("/stats", oStats);
         },
 
         onSearch: function(oEvent) {
@@ -329,12 +349,8 @@ sap.ui.define([
             oBinding.filter(aFilters);
         },
 
-        onFilterPress: function() {
-            MessageToast.show("Filter dialog will be implemented here");
-        },
-
         onNewInspection: function() {
-            MessageToast.show("New inspection dialog will be implemented here");
+            MessageToast.show("New inspection functionality will be implemented");
         },
 
         onStartInspection: function(oEvent) {
@@ -342,7 +358,15 @@ sap.ui.define([
             const oContext = oSource.getBindingContext("dashboard");
             const oInspection = oContext.getObject();
             
-            MessageBox.information("Starting inspection for: " + oInspection.deliveryId);
+            // Update status to In Progress
+            const sPath = oContext.getPath();
+            const oModel = this.getView().getModel("dashboard");
+            oModel.setProperty(sPath + "/status", "In Progress");
+            
+            // Recalculate statistics
+            this.calculateStatistics();
+            
+            MessageBox.success("Inspection started for: " + oInspection.deliveryId);
         },
 
         onRecordResults: function(oEvent) {
@@ -359,14 +383,6 @@ sap.ui.define([
             const oInspection = oContext.getObject();
 
             MessageBox.information("Viewing report for: " + oInspection.deliveryId);
-        },
-
-        onProcessFailedItem: function(oEvent) {
-            const oSource = oEvent.getSource();
-            const oContext = oSource.getBindingContext("dashboard");
-            const oFailedItem = oContext.getObject();
-
-            MessageBox.information("Processing failed item: " + oFailedItem.itemId);
         }
     });
 });
