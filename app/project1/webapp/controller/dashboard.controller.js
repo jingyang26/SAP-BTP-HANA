@@ -593,6 +593,77 @@ sap.ui.define([
         
         onCancelRecord: function() {
             this._oRecordDialog.close();
+        },
+
+        onProcessFailedItem: function(oEvent) {
+            const oSource = oEvent.getSource();
+            const oContext = oSource.getBindingContext("dashboard");
+            const oFailedItem = oContext.getObject();
+            
+            // Create failed item model if it doesn't exist
+            if (!this._oFailedItemModel) {
+                this._oFailedItemModel = new JSONModel({
+                    itemId: "",
+                    batchNumber: "",
+                    failureReason: "",
+                    action: "",
+                    status: "",
+                    processComments: "",
+                    path: ""
+                });
+                this.getView().setModel(this._oFailedItemModel, "failedItem");
+            }
+            
+            // Set the data for the dialog
+            this._oFailedItemModel.setData({
+                ...oFailedItem,
+                processComments: "",
+                path: oContext.getPath()
+            });
+            
+            // Create dialog if it doesn't exist
+            if (!this._oProcessDialog) {
+                this._oProcessDialog = sap.ui.xmlfragment(
+                    "project1.view.fragments.processFailedItemDialog",
+                    this
+                );
+                this.getView().addDependent(this._oProcessDialog);
+            }
+            
+            this._oProcessDialog.open();
+        },
+        
+        onCompleteProcess: function() {
+            const oFailedItem = this._oFailedItemModel.getData();
+            
+            // Validate comments
+            if (!oFailedItem.processComments) {
+                MessageBox.error("Please add comments before completing the process");
+                return;
+            }
+            
+            // Get the dashboard model
+            const oDashboardModel = this.getView().getModel("dashboard");
+            
+            // Get current failed items array
+            const aFailedItems = oDashboardModel.getProperty("/failedItems");
+            
+            // Remove the processed item
+            const iIndex = aFailedItems.findIndex(item => item.itemId === oFailedItem.itemId);
+            if (iIndex !== -1) {
+                aFailedItems.splice(iIndex, 1);
+                oDashboardModel.setProperty("/failedItems", aFailedItems);
+            }
+            
+            // Close dialog and show success message
+            this._oProcessDialog.close();
+            MessageBox.success("Failed item has been processed successfully", {
+                details: `Comments: ${oFailedItem.processComments}`
+            });
+        },
+        
+        onCancelProcess: function() {
+            this._oProcessDialog.close();
         }
     });
 });
