@@ -119,8 +119,8 @@
                             <ObjectStatus
                                 text="{dashboard>status}"
                                 state="{= ${dashboard>status} === 'Pass' ? 'Success' : 
-                                       ${dashboard>status} === 'Fail' ? 'Error' :
-                                       ${dashboard>status} === 'In Progress' ? 'Warning' : 'None' }"/>
+                                    ${dashboard>status} === 'Fail' ? 'Error' :
+                                    ${dashboard>status} === 'In Progress' ? 'Warning' : 'None' }"/>
                             <Text text="{dashboard>inspector}"/>
                             <ObjectNumber
                                 number="{dashboard>quantity}"
@@ -144,7 +144,7 @@
                                     visible="{= ${dashboard>status} === 'In Progress' }"/>
                                 <Button 
                                     icon="sap-icon://document" 
-                                    text="Report" 
+                                    text="Finish" 
                                     type="Transparent"
                                     press=".onViewReport"
                                     visible="{= ${dashboard>status} === 'Pass' || ${dashboard>status} === 'Fail' }"/>
@@ -152,7 +152,8 @@
                         </cells>
                     </ColumnListItem>
                 </items>
-            </Table>
+    </Table>
+
         </Panel>
 
         <!-- Failed Items Panel -->

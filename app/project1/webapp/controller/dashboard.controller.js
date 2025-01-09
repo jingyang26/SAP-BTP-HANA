@@ -377,15 +377,39 @@ sap.ui.define([
             MessageBox.information("Recording results for: " + oInspection.deliveryId);
         },
 
+        // Update these methods in your controller
+
         onViewReport: function(oEvent) {
             const oSource = oEvent.getSource();
             const oContext = oSource.getBindingContext("dashboard");
             const oInspection = oContext.getObject();
-
-            MessageBox.information("Viewing report for: " + oInspection.deliveryId);
+            
+            // Create inspection info model if it doesn't exist
+            if (!this._oInspectionInfoModel) {
+                this._oInspectionInfoModel = new JSONModel();
+                this.getView().setModel(this._oInspectionInfoModel, "inspection");
+            }
+            
+            // Set the data for the dialog
+            this._oInspectionInfoModel.setData(oInspection);
+            
+            // Create dialog if it doesn't exist
+            if (!this._oInspectionInfoDialog) {
+                this._oInspectionInfoDialog = sap.ui.xmlfragment(
+                    "project1.view.fragments.inspectionInfoDialog",
+                    this
+                );
+                this.getView().addDependent(this._oInspectionInfoDialog);
+            }
+            
+            this._oInspectionInfoDialog.open();
         },
 
-        // Add these methods to your dashboard.controller.js
+        onCloseInspectionInfo: function() {
+            if (this._oInspectionInfoDialog) {
+                this._oInspectionInfoDialog.close();
+            }
+        },
 
         onNewInspection: function() {
             // Initialize the model for new inspection

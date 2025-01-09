@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout"
+    xmlns:f="sap.ui.layout.form">
+    
+    <Dialog
+        title="Inspection Information"
+        class="sapUiResponsiveContentPadding">
+        
+        <f:SimpleForm
+            editable="false"
+            layout="ResponsiveGridLayout">
+            
+            <f:content>
+                <Label text="Delivery ID"/>
+                <Text text="{inspection>/deliveryId}"/>
+                
+                <Label text="Batch Number"/>
+                <Text text="{inspection>/batchNumber}"/>
+                
+                <Label text="Material"/>
+                <Text text="{inspection>/material}"/>
+                
+                <Label text="Status"/>
+                <ObjectStatus
+                    text="{inspection>/status}"
+                    state="{= ${inspection>/status} === 'Pass' ? 'Success' : 
+                           ${inspection>/status} === 'Fail' ? 'Error' :
+                           ${inspection>/status} === 'In Progress' ? 'Warning' : 'None' }"/>
+                
+                <Label text="Inspector"/>
+                <Text text="{inspection>/inspector}"/>
+                
+                <Label text="Quantity"/>
+                <ObjectNumber
+                    number="{inspection>/quantity}"
+                    unit="{inspection>/unit}"/>
+                
+                <Label text="Date"/>
+                <Text text="{
+                    path: 'inspection>/date',
+                    formatter: '.formatter.formatDate'
+                }"/>
+            </f:content>
+        </f:SimpleForm>
+        
+        <buttons>
+            <Button text="OK" press=".onCloseInspectionInfo" type="Emphasized"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>
