@@ -483,6 +483,92 @@ sap.ui.define([
 
             // Update model
             oModel.setProperty("/stats", oStats);
+        },
+        onRecordResults: function(oEvent) {
+            const oSource = oEvent.getSource();
+            const oContext = oSource.getBindingContext("dashboard");
+            const oInspection = oContext.getObject();
+            
+            // Create record model if it doesn't exist
+            if (!this.recordModel) {
+                this.recordModel = new JSONModel({
+                    deliveryId: "",
+                    material: "",
+                    batchNumber: "",
+                    resultIndex: -1,
+                    comments: "",
+                    path: ""
+                });
+                this.getView().setModel(this.recordModel, "record");
+            }
+            
+            // Set the data for the dialog
+            this.recordModel.setData({
+                deliveryId: oInspection.deliveryId,
+                material: oInspection.material,
+                batchNumber: oInspection.batchNumber,
+                resultIndex: -1,
+                comments: "",
+                path: oContext.getPath()  // Store the path for updating
+            });
+            
+            // Create dialog if it doesn't exist
+            if (!this._oRecordDialog) {
+                this._oRecordDialog = sap.ui.xmlfragment(
+                    "project1.view.fragments.recordResultsDialog",
+                    this
+                );
+                this.getView().addDependent(this._oRecordDialog);
+            }
+            
+            this._oRecordDialog.open();
+        },
+        
+        onSubmitResults: function() {
+            const oRecordData = this.recordModel.getData();
+            
+            // Validate selection
+            if (oRecordData.resultIndex === -1) {
+                MessageBox.error("Please select Pass or Fail");
+                return;
+            }
+            
+            // Get the dashboard model
+            const oDashboardModel = this.getView().getModel("dashboard");
+            
+            // Update the inspection status
+            const sNewStatus = oRecordData.resultIndex === 0 ? "Pass" : "Fail";
+            oDashboardModel.setProperty(oRecordData.path + "/status", sNewStatus);
+            
+            // If failed, add to failed items
+            if (sNewStatus === "Fail") {
+                const oInspection = oDashboardModel.getProperty(oRecordData.path);
+                const aFailedItems = oDashboardModel.getProperty("/failedItems") || [];
+                
+                aFailedItems.push({
+                    itemId: "FAIL-" + new Date().getTime(),
+                    batchNumber: oInspection.batchNumber,
+                    failureReason: oRecordData.comments || "No comments provided",
+                    action: "Quality review required",
+                    priority: "High",
+                    status: "Pending Review",
+                    affectedQuantity: oInspection.quantity,
+                    inspector: oInspection.inspector
+                });
+                
+                oDashboardModel.setProperty("/failedItems", aFailedItems);
+            }
+            
+            // Recalculate statistics
+            this.calculateStatistics();
+            
+            // Close dialog and show success message
+            this._oRecordDialog.close();
+            MessageToast.show(`Inspection ${sNewStatus === "Pass" ? "passed" : "failed"}`);
+        },
+        
+        onCancelRecord: function() {
+            this._oRecordDialog.close();
         }
     });
 });

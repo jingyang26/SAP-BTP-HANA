@@ -1,0 +1,50 @@
+<!-- recordResultsDialog.fragment.xml -->
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    
+    <Dialog
+        title="Record Inspection Results"
+        class="sapUiResponsiveMargin">
+        
+        <f:SimpleForm
+            editable="true"
+            layout="ResponsiveGridLayout">
+            <f:content>
+                <Label text="Delivery ID"/>
+                <Text text="{record>/deliveryId}"/>
+                
+                <Label text="Material"/>
+                <Text text="{record>/material}"/>
+                
+                <Label text="Batch Number"/>
+                <Text text="{record>/batchNumber}"/>
+                
+                <Label text="Result" required="true"/>
+                <RadioButtonGroup
+                    columns="2"
+                    selectedIndex="{record>/resultIndex}">
+                    <RadioButton text="Pass" />
+                    <RadioButton text="Fail" />
+                </RadioButtonGroup>
+                
+                <Label text="Comments"/>
+                <TextArea
+                    value="{record>/comments}"
+                    rows="3"
+                    width="100%"/>
+            </f:content>
+        </f:SimpleForm>
+        
+        <buttons>
+            <Button 
+                text="Submit" 
+                type="Emphasized" 
+                press=".onSubmitResults"/>
+            <Button 
+                text="Cancel" 
+                press=".onCancelRecord"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>
