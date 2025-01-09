@@ -1,0 +1,61 @@
+<!-- newInspectionDialog.fragment.xml -->
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    
+    <Dialog
+        title="New Inspection"
+        class="sapUiResponsiveMargin">
+        <f:SimpleForm
+            editable="true"
+            layout="ResponsiveGridLayout"
+            labelSpanXL="4"
+            labelSpanL="4"
+            labelSpanM="4"
+            labelSpanS="12">
+            
+            <f:content>
+                <Label text="Delivery ID" required="true"/>
+                <Input value="{newInspection>/deliveryId}"/>
+                
+                <Label text="Batch Number" required="true"/>
+                <Input value="{newInspection>/batchNumber}"/>
+                
+                <Label text="Material" required="true"/>
+                <Input value="{newInspection>/material}"/>
+                
+                <Label text="Inspector"/>
+                <Input value="{newInspection>/inspector}"/>
+                
+                <Label text="Quantity"/>
+                <StepInput
+                    value="{newInspection>/quantity}"
+                    min="1"
+                    max="100000"/>
+                
+                <Label text="Unit"/>
+                <Select selectedKey="{newInspection>/unit}">
+                    <items>
+                        <core:Item key="sheets" text="Sheets"/>
+                        <core:Item key="cartridges" text="Cartridges"/>
+                        <core:Item key="pieces" text="Pieces"/>
+                        <core:Item key="sets" text="Sets"/>
+                        <core:Item key="rolls" text="Rolls"/>
+                        <core:Item key="liters" text="Liters"/>
+                    </items>
+                </Select>
+            </f:content>
+        </f:SimpleForm>
+        
+        <buttons>
+            <Button 
+                text="Save" 
+                type="Emphasized" 
+                press=".onSaveNewInspection"/>
+            <Button 
+                text="Cancel" 
+                press=".onCancelNewInspection"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

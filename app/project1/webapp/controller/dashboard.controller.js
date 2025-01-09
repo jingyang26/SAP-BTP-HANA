@@ -383,6 +383,106 @@ sap.ui.define([
             const oInspection = oContext.getObject();
 
             MessageBox.information("Viewing report for: " + oInspection.deliveryId);
+        },
+
+        // Add these methods to your dashboard.controller.js
+
+        onNewInspection: function() {
+            // Initialize the model for new inspection
+            const oNewInspectionModel = new JSONModel({
+                deliveryId: "DEL-" + new Date().getFullYear() + "-" + String(this._getNextDeliveryNumber()).padStart(3, '0'),
+                batchNumber: "",
+                material: "",
+                status: "Pending",
+                inspector: "",
+                date: new Date().toISOString().split('T')[0],
+                type: "Inbound",
+                quantity: 1,
+                unit: "sheets"
+            });
+            
+            this.getView().setModel(oNewInspectionModel, "newInspection");
+            
+            // Create dialog if it doesn't exist
+            if (!this._oNewInspectionDialog) {
+                this._oNewInspectionDialog = sap.ui.xmlfragment(
+                    "project1.view.fragments.newInspectionDialog",
+                    this
+                );
+                this.getView().addDependent(this._oNewInspectionDialog);
+            }
+            
+            this._oNewInspectionDialog.open();
+        },
+
+        onSaveNewInspection: function() {
+            const oNewInspectionModel = this.getView().getModel("newInspection");
+            const oNewInspection = oNewInspectionModel.getData();
+            
+            // Validate required fields
+            if (!oNewInspection.deliveryId || !oNewInspection.batchNumber || !oNewInspection.material) {
+                MessageBox.error("Please fill in all required fields");
+                return;
+            }
+            
+            // Get the dashboard model and current inspections
+            const oDashboardModel = this.getView().getModel("dashboard");
+            const aInspections = oDashboardModel.getProperty("/inspections");
+            
+            // Add new inspection to the array
+            aInspections.unshift(oNewInspection);
+            
+            // Update the model
+            oDashboardModel.setProperty("/inspections", aInspections);
+            
+            // Recalculate statistics
+            this.calculateStatistics();
+            
+            // Close dialog and show success message
+            this._oNewInspectionDialog.close();
+            MessageToast.show("New inspection added successfully");
+        },
+
+        onCancelNewInspection: function() {
+            this._oNewInspectionDialog.close();
+        },
+
+        _getNextDeliveryNumber: function() {
+            const aInspections = this.getView().getModel("dashboard").getProperty("/inspections") || [];
+            let maxNumber = 0;
+            
+            aInspections.forEach(inspection => {
+                const match = inspection.deliveryId.match(/DEL-\d{4}-(\d{3})/);
+                if (match) {
+                    const number = parseInt(match[1]);
+                    maxNumber = Math.max(maxNumber, number);
+                }
+            });
+            
+            return maxNumber + 1;
+        },
+
+        // Update your existing calculateStatistics method:
+        calculateStatistics: function() {
+            const oModel = this.getView().getModel("dashboard");
+            const aInspections = oModel.getProperty("/inspections") || [];
+            
+            // Calculate statistics
+            const oStats = {
+                pending: aInspections.filter(item => item.status === "Pending").length,
+                inProgress: aInspections.filter(item => item.status === "In Progress").length,
+                failed: aInspections.filter(item => item.status === "Fail").length,
+                passed: aInspections.filter(item => item.status === "Pass").length
+            };
+            
+            // Calculate pass rate
+            const completedInspections = oStats.failed + oStats.passed;
+            oStats.passRate = completedInspections > 0 
+                ? Math.round((oStats.passed / completedInspections) * 100)
+                : 0;
+
+            // Update model
+            oModel.setProperty("/stats", oStats);
         }
     });
 });
