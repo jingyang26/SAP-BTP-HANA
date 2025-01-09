@@ -1,33 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- dashboard.view.xml -->
 <mvc:View
-   controllerName="project1.controller.dashboard"
+    controllerName="project1.controller.dashboard"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:layout="sap.ui.layout"
     xmlns:f="sap.f">
     
-    <Page showHeader="true" title="Quality Inspection Dashboard">
+    <Page showHeader="true" title="AKMAJU Quality Inspection Dashboard">
+        <!-- KPI Section -->
         <layout:Grid defaultSpan="XL3 L3 M6 S12" class="sapUiSmallMargin">
-            <!-- KPI Tiles -->
             <layout:content>
                 <GenericTile 
                     header="Pending Inspections"
-                    subheader="Today"
-                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    subheader="Awaiting Action"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop">
                     <TileContent>
                         <NumericContent 
-                            value="{dashboard>/inspections/pending}"
+                            value="{dashboard>/stats/pending}"
                             valueColor="Critical"/>
                     </TileContent>
                 </GenericTile>
 
                 <GenericTile 
                     header="Pass Rate"
-                    subheader="This Week"
-                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    subheader="Overall"
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop">
                     <TileContent>
                         <NumericContent 
-                            value="{dashboard>/inspections/passRate}"
+                            value="{dashboard>/stats/passRate}"
                             valueColor="Good"
                             scale="%"/>
                     </TileContent>
@@ -36,10 +38,10 @@
                 <GenericTile 
                     header="Failed Items"
                     subheader="Requires Action"
-                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop">
                     <TileContent>
                         <NumericContent 
-                            value="{dashboard>/inspections/failed}"
+                            value="{dashboard>/stats/failed}"
                             valueColor="Error"/>
                     </TileContent>
                 </GenericTile>
@@ -47,101 +49,172 @@
                 <GenericTile 
                     header="In Progress"
                     subheader="Active Inspections"
-                    class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout">
+                    class="sapUiTinyMarginBegin sapUiTinyMarginTop">
                     <TileContent>
                         <NumericContent 
-                            value="{dashboard>/inspections/inProgress}"
+                            value="{dashboard>/stats/inProgress}"
                             valueColor="Neutral"/>
                     </TileContent>
                 </GenericTile>
             </layout:content>
         </layout:Grid>
 
-        <!-- Inspection List -->
-        <Panel headerText="Current Inspections" class="sapUiSmallMargin">
+        <!-- Main Content -->
+        <VBox class="sapUiSmallMargin">
+            <!-- Toolbar -->
             <Toolbar>
-                <SearchField width="15rem" placeholder="Search by Delivery ID or Batch"/>
+                <Title text="Quality Inspections"/>
                 <ToolbarSpacer/>
-                <Button icon="sap-icon://filter" text="Filter" press="onFilterPress"/>
-                <Button icon="sap-icon://add" text="New Inspection" type="Emphasized" press="onNewInspection"/>
+                <SearchField 
+                    width="20%" 
+                    search=".onSearch" 
+                    placeholder="Search by ID, Batch, or Material"/>
+                <Button 
+                    icon="sap-icon://filter" 
+                    text="Filter" 
+                    press=".onFilterPress"/>
+                <Button 
+                    icon="sap-icon://add" 
+                    text="New Inspection" 
+                    type="Emphasized" 
+                    press=".onNewInspection"/>
             </Toolbar>
+
+            <!-- Inspection Table -->
             <Table
-                items="{dashboard>/inspectionList}"
-                mode="SingleSelectMaster"
-                selectionChange="onInspectionSelect">
+                id="inspectionTable"
+                items="{dashboard>/inspections}"
+                mode="SingleSelect"
+                sticky="HeaderToolbar,ColumnHeaders"
+                growing="true"
+                growingThreshold="10"
+                growingScrollToLoad="true">
                 <columns>
-                    <Column>
+                    <Column width="12em">
                         <Text text="Delivery ID"/>
                     </Column>
-                    <Column>
+                    <Column width="12em">
                         <Text text="Batch Number"/>
                     </Column>
-                    <Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true">
+                        <Text text="Material"/>
+                    </Column>
+                    <Column width="10em">
                         <Text text="Status"/>
                     </Column>
-                    <Column>
+                    <Column width="10em">
                         <Text text="Inspector"/>
                     </Column>
-                    <Column>
+                    <Column width="10em">
+                        <Text text="Quantity"/>
+                    </Column>
+                    <Column width="8em">
                         <Text text="Date"/>
                     </Column>
-                    <Column>
+                    <Column width="12em">
                         <Text text="Actions"/>
                     </Column>
                 </columns>
+
                 <items>
                     <ColumnListItem type="Active">
                         <cells>
-                            <Text text="{dashboard>deliveryId}"/>
+                            <ObjectIdentifier
+                                title="{dashboard>deliveryId}"
+                                text="{dashboard>type}"/>
                             <Text text="{dashboard>batchNumber}"/>
+                            <Text text="{dashboard>material}"/>
                             <ObjectStatus
                                 text="{dashboard>status}"
-                                state="{= ${dashboard>status} === 'Pass' ? 'Success' : ${dashboard>status} === 'Fail' ? 'Error' : 'Warning' }"/>
+                                state="{= ${dashboard>status} === 'Pass' ? 'Success' : 
+                                       ${dashboard>status} === 'Fail' ? 'Error' :
+                                       ${dashboard>status} === 'In Progress' ? 'Warning' : 'None' }"/>
                             <Text text="{dashboard>inspector}"/>
-                            <Text text="{dashboard>date}"/>
+                            <ObjectNumber
+                                number="{dashboard>quantity}"
+                                unit="{dashboard>unit}"/>
+                            <Text text="{
+                                path: 'dashboard>date',
+                                formatter: '.formatter.formatDate'
+                            }"/>
                             <HBox>
-                                <Button icon="sap-icon://inspect" tooltip="View Details" press="onViewDetails"/>
-                                <Button icon="sap-icon://edit" tooltip="Edit" press="onEdit"/>
-                                <Button icon="sap-icon://document" tooltip="Generate Report" press="onGenerateReport"/>
+                                <Button 
+                                    icon="sap-icon://inspect" 
+                                    text="Start" 
+                                    press=".onStartInspection"
+                                    visible="{= ${dashboard>status} === 'Pending' }"/>
+                                <Button 
+                                    icon="sap-icon://complete" 
+                                    text="Record" 
+                                    press=".onRecordResults"
+                                    visible="{= ${dashboard>status} === 'In Progress' }"/>
+                                <Button 
+                                    icon="sap-icon://document" 
+                                    text="Report" 
+                                    press=".onViewReport"
+                                    visible="{= ${dashboard>status} === 'Pass' || ${dashboard>status} === 'Fail' }"/>
                             </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>
             </Table>
-        </Panel>
+        </VBox>
 
         <!-- Failed Items Panel -->
-        <Panel headerText="Failed Items - Action Required" class="sapUiSmallMargin">
+        <Panel 
+            headerText="Failed Items - Action Required" 
+            class="sapUiSmallMargin"
+            expandable="true"
+            expanded="true">
             <Table
                 items="{dashboard>/failedItems}"
-                mode="SingleSelectMaster">
+                mode="SingleSelect">
                 <columns>
-                    <Column>
+                    <Column width="10em">
                         <Text text="Item ID"/>
+                    </Column>
+                    <Column width="10em">
+                        <Text text="Batch Number"/>
                     </Column>
                     <Column>
                         <Text text="Failure Reason"/>
                     </Column>
-                    <Column>
-                        <Text text="Required Action"/>
+                    <Column width="12em">
+                        <Text text="Action"/>
                     </Column>
-                    <Column>
+                    <Column width="8em">
                         <Text text="Priority"/>
                     </Column>
-                    <Column>
+                    <Column width="10em">
                         <Text text="Status"/>
                     </Column>
+                    <Column width="10em">
+                        <Text text="Quantity"/>
+                    </Column>
+                    <Column width="8em">
+                        <Text text="Actions"/>
+                    </Column>
                 </columns>
+
                 <items>
                     <ColumnListItem>
                         <cells>
-                            <Text text="{dashboard>itemId}"/>
+                            <ObjectIdentifier title="{dashboard>itemId}"/>
+                            <Text text="{dashboard>batchNumber}"/>
                             <Text text="{dashboard>failureReason}"/>
                             <Text text="{dashboard>action}"/>
                             <ObjectStatus
                                 text="{dashboard>priority}"
-                                state="{= ${dashboard>priority} === 'High' ? 'Error' : ${dashboard>priority} === 'Medium' ? 'Warning' : 'Success' }"/>
+                                state="{= ${dashboard>priority} === 'High' ? 'Error' : 
+                                       ${dashboard>priority} === 'Medium' ? 'Warning' : 'Success' }"/>
                             <Text text="{dashboard>status}"/>
+                            <ObjectNumber
+                                number="{dashboard>affectedQuantity}"
+                                unit="units"/>
+                            <Button 
+                                text="Process" 
+                                type="Emphasized" 
+                                press=".onProcessFailedItem"/>
                         </cells>
                     </ColumnListItem>
                 </items>
